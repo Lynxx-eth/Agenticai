@@ -1,8 +1,9 @@
 """Central configuration — reads secrets and options from the environment.
 
-Keys are loaded from a local `.env` file (see `.env.example`). Nothing here is
-ever hardcoded; if a key is missing the UI surfaces a friendly setup prompt
-rather than crashing.
+Keys are loaded from a local `.env` file (see `.env.example`) when running
+locally, or from Streamlit **Secrets** when deployed to Streamlit Cloud (where
+there is no `.env`). Nothing here is ever hardcoded; if a key is missing the UI
+surfaces a friendly setup prompt rather than crashing.
 """
 from __future__ import annotations
 
@@ -12,6 +13,29 @@ from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def _load_streamlit_secrets() -> None:
+    """Mirror Streamlit Cloud secrets into os.environ so `os.getenv` finds them.
+
+    On Streamlit Cloud there is no `.env` file — keys live in `st.secrets`.
+    Streamlit does not reliably expose those as environment variables, so we copy
+    the top-level string secrets across here. Real env vars / `.env` values win
+    (setdefault), and this is a silent no-op when Streamlit isn't running.
+    """
+    try:
+        import streamlit as st
+
+        for key, val in st.secrets.items():
+            if isinstance(val, str):
+                os.environ.setdefault(key, val)
+    except Exception:
+        # No streamlit, no secrets file, or malformed secrets — ignore and fall
+        # back to environment / .env values.
+        pass
+
+
+_load_streamlit_secrets()
 
 
 # ── Static option catalogues (used to build the filter controls) ─────────────
