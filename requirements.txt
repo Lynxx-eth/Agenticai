@@ -1,0 +1,12 @@
+streamlit>=1.40.0
+pandas>=2.2.0
+plotly>=5.24.0
+python-dotenv>=1.0.1
+
+# ── Free stack (default) ──────────────────────────────────────
+ddgs>=6.0.0            # DuckDuckGo web search — no API key needed
+google-genai>=0.8.0    # Google Gemini — free-tier scoring/outreach
+
+# ── Paid stack (optional — for switching back to xAI / Claude) ─
+anthropic>=0.49.0
+xai-sdk>=1.0.0
