@@ -156,12 +156,26 @@ with st.sidebar:
     st.caption(f"🧠 scoring · {settings.scorer_label}")
 
     if settings.search_provider == "free" and settings.analysis_provider == "gemini" and not settings.gemini_ready:
-        st.warning("Add a **free** GEMINI_API_KEY to `.env`, then restart.", icon="⚠️")
+        st.warning("Gemini key not detected. Add it in **Settings → Secrets** (or `.env` locally), then reboot.", icon="⚠️")
     elif settings.analysis_provider is None:
-        st.warning("No scoring key set. Add GEMINI_API_KEY (free) to `.env`, then restart.", icon="⚠️")
+        st.warning("No scoring key set. Add GEMINI_API_KEY (free) in Secrets, then reboot.", icon="⚠️")
     elif settings.is_free_mode:
         st.info("Running **100% free** — DuckDuckGo search + Gemini scoring. "
-                "Set `SEARCH_PROVIDER=grok` in `.env` to switch to xAI later.", icon="✨")
+                "Set `SEARCH_PROVIDER=grok` in Secrets to switch to xAI later.", icon="✨")
+
+    # ── Key diagnostic (safe: shows names/lengths only, never the key value) ──
+    with st.expander("🔧 Key diagnostic"):
+        try:
+            secret_names = list(st.secrets.keys())
+        except Exception as exc:
+            secret_names = None
+            st.caption(f"st.secrets unreadable → {type(exc).__name__}. "
+                       "Usually a TOML format error in the Secrets box.")
+        if secret_names is not None:
+            st.caption(f"Secret keys seen: {secret_names or 'none'}")
+        klen = len(settings.gemini_api_key)
+        st.caption(f"GEMINI_API_KEY length resolved: {klen}  ·  gemini_ready: {settings.gemini_ready}")
+        st.caption(f"provider → search: {settings.search_provider} · analysis: {settings.analysis_provider}")
 
     st.markdown("---")
     if st.button("✨  Load Demo Data", use_container_width=True):
